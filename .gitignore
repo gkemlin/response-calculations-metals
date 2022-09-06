@@ -1,0 +1,4 @@
+*.pdf
+*.jld2
+LocalPreferences.toml
+*nohup.out
