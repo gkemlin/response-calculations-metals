@@ -72,32 +72,44 @@ function plot_cvg(system::String, ik_list; spin=false)
 
                         # plot iterations
                         kpt_short = round.(kpt_id[1], digits=3)
-                        g = GroupPlot(2, 1, groupStyle="horizontal sep = 2cm")
                         p = Plots.Linear[]
-                        q = Plots.Linear[]
-                        i = 1 # color counter
                         n_list = sort(parse.(Int64, keys(dict[key])))
                         for n in n_list
-                            color = mycolors[i]
-                            i = i%length(mycolors) + 1
-                            push!(p, Plots.Linear(Float64.(dict[key]["$n"]),
-                                                  style="solid, thick, $color", mark="x"))
-                            push!(q, Plots.Linear(Float64.(dict_noextra[key]["$n"]),
-                                                  style="solid, thick, $color", mark="x"))
+                            if n==1
+                                color = mycolors[3]
+                                push!(p, Plots.Linear(Float64.(dict[key]["$n"]),
+                                                      legendentry=L"Schur $n=%$(n)$",
+                                                      style="solid, thick, $color, mark repeat=5", mark="triangle"))
+                                push!(p, Plots.Linear(Float64.(dict_noextra[key]["$n"]),
+                                                      legendentry=L"direct $n=%$(n)$",
+                                                      style="dashed, thick, $color, mark repeat=5", mark="triangle"))
+                            elseif n==div(N,2)
+                                color = mycolors[2]
+                                push!(p, Plots.Linear(Float64.(dict[key]["$n"]),
+                                                      legendentry=L"Schur $n=%$(n)$",
+                                                      style="solid, thick, $color, mark repeat=5", mark="+"))
+                                push!(p, Plots.Linear(Float64.(dict_noextra[key]["$n"]),
+                                                      legendentry=L"direct $n=%$(n)$",
+                                                      style="dashed, thick, $color, mark repeat=5", mark="+"))
+                            elseif n==N
+                                color = mycolors[1]
+                                push!(p, Plots.Linear(Float64.(dict[key]["$n"]),
+                                                      legendentry=L"Schur $n=%$(n)$",
+                                                      style="solid, thick, $color, mark repeat=5", mark="x"))
+                                push!(p, Plots.Linear(Float64.(dict_noextra[key]["$n"]),
+                                                      legendentry=L"direct $n=%$(n)$",
+                                                      style="dashed, thick, $color, mark repeat=5", mark="x"))
+                            end
                         end
                         if spin
                             s = kpt_id[2] == 1 ? " \$\\uparrow\$" : " \$\\downarrow\$"
                         else
                             s = ""
                         end
-                        push!(g, Axis(p, title=L"Schur -- $k$-point at $%$(kpt_short)$%$(s)",
-                                      xlabel="iterations",
-                                      ylabel="residual", ymode="log",
-                                      legendStyle="at={(0.95,0.95)}, anchor=north east"))
-                        push!(g, Axis(q, title=L"direct -- $k$-point at $%$(kpt_short)$%$(s)",
-                                      xlabel="iterations",
-                                      ylabel="residual", ymode="log",
-                                      legendStyle="at={(0.95,0.95)}, anchor=north east"))
+                        g = Axis(p, title=L"$k$-point at $%$(kpt_short)$%$(s)",
+                                 xlabel="iterations",
+                                 ylabel="residual", ymode="log",
+                                 legendStyle="at={(1.05,0.5)}, anchor=west")
                         save("sternheimer_$(system)_alln_$(key).pdf", g)
                     end
                 end
