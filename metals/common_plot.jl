@@ -83,7 +83,7 @@ function plot_cvg(system::String, ik_list; spin=false)
                                 push!(p, Plots.Linear(Float64.(dict_noextra[key]["$n"]),
                                                       legendentry=L"direct $n=%$(n)$",
                                                       style="dashed, thick, $color, mark repeat=5", mark="triangle"))
-                            elseif n==div(N,2)
+                            elseif n==div(3N,4)
                                 color = mycolors[2]
                                 push!(p, Plots.Linear(Float64.(dict[key]["$n"]),
                                                       legendentry=L"Schur $n=%$(n)$",
@@ -102,11 +102,11 @@ function plot_cvg(system::String, ik_list; spin=false)
                             end
                         end
                         if spin
-                            s = kpt_id[2] == 1 ? " \$\\uparrow\$" : " \$\\downarrow\$"
+                            s = kpt_id[2] == 1 ? ", spin \$\\uparrow\$" : ", spin \$\\downarrow\$"
                         else
                             s = ""
                         end
-                        g = Axis(p, title=L"$k$-point at $%$(kpt_short)$%$(s)",
+                        g = Axis(p, title=L"$k$-point $%$(kpt_short)$%$(s)",
                                  xlabel="iterations",
                                  ylabel="residual", ymode="log",
                                  legendStyle="at={(1.05,0.5)}, anchor=west")
@@ -190,7 +190,7 @@ function plot_ratios(system::String; spin=false, ξ=nothing)
                                style="solid, thick, $color_real, only marks", mark="x"))
         if !isnothing(ξ)
             push!(pp, Plots.Linear([x[2] for x in p], [ξ for x in p],
-                                   legendentry=L"\xi = %$ξ",
+                                   legendentry=L"\xi_T = %$ξ",
                                    style="solid, thick, $color_real", mark="none"))
         end
         ncol = isnothing(ξ) ? 3 : 4
@@ -297,15 +297,15 @@ function all_plot(system::String; spin=false)
                                               style="solid, thick, $color", mark="x"))
                     end
                     if spin
-                        s = kpt_id[2] == 1 ? " \$\\uparrow\$" : " \$\\downarrow\$"
+                        s = kpt_id[2] == 1 ? ", spin \$\\uparrow\$" : ", spin \$\\downarrow\$"
                     else
                         s = ""
                     end
-                    push!(g, Axis(p, title=L"Schur -- $k$-point at $%$(kpt_short)$%$(s)",
+                    push!(g, Axis(p, title=L"Schur -- $k$-point $%$(kpt_short)$%$(s)",
                                   xlabel="iterations",
                                   ylabel="residual", ymode="log",
                                   legendStyle="at={(0.95,0.95)}, anchor=north east"))
-                    push!(g, Axis(q, title=L"direct -- $k$-point at $%$(kpt_short)$%$(s)",
+                    push!(g, Axis(q, title=L"direct -- $k$-point $%$(kpt_short)$%$(s)",
                                   xlabel="iterations",
                                   ylabel="residual", ymode="log",
                                   legendStyle="at={(0.95,0.95)}, anchor=north east"))
