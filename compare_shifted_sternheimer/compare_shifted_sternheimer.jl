@@ -111,7 +111,7 @@ function run()
 
     # custom callback for sternheimer solver
     log_dict         = Dict{Tuple{Array{Float64}, Int64}, Dict{Int64, Array{Float64}}}()
-    log_dict_noextra = Dict{Tuple{Array{Float64}, Int64}, Dict{Int64, Array{Float64}}}()
+    log_dict_shifted = Dict{Tuple{Array{Float64}, Int64}, Dict{Int64, Array{Float64}}}()
     function callback_sternheimer!(dict)
         function callback(info)
             coord   = info.kpoint.coordinate
