@@ -16,4 +16,4 @@ Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 TimerOutputs = "a759f4b9-e2f1-59dc-863e-4aeb61b1ea8f"
 
 [compat]
-DFTK = "0.5.5"
+DFTK = "= 0.5.5"
