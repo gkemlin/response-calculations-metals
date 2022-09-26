@@ -139,11 +139,7 @@ function run_scf()
     # generate appropriate right-hand-side from atomic displacements
     R = [zeros(3) for pos in positions]
     for iR in 1:length(R)
-        if iR%2 == 0
-            R[iR] = ones(3)
-        else
-            R[iR] = -ones(3)
-        end
+        R[iR] = -ones(3) + 2*rand(3)
     end
     function Vψ(ε)
         T = typeof(ε)
