@@ -196,14 +196,22 @@ function run()
     @show sum(δρ2)
 
     # make sure we have the same density response
-    @assert norm(δρ1 - δρ2) < 5e-8
     @assert sum(δρ1) < 1e-12
     @assert sum(δρ2) < 1e-12
 
     # write output files
-    res_dict["eigenvalues"] = scfres.eigenvalues
-    res_dict["residuals"] = scfres.diagonalization[1].residual_norms
-    open(fp -> JSON.print(fp, res_dict), res_file, "w")
+    kpts       = DFTK.gather_kpts(scfres.basis.kpoints, scfres.basis)
+    ε          = DFTK.gather_kpts(scfres.eigenvalues, scfres.basis)
+    residuals  = DFTK.gather_kpts(scfres.diagonalization[1].residual_norms, scfres.basis)
+    occupation = DFTK.gather_kpts(scfres.occupation, scfres.basis)
+    if mpi_master()
+        res_dict["eigenvalues"] = ε
+        res_dict["residuals"]   = residuals
+        res_dict["occupation"]  = occupation
+        res_dict["kpts"]        = kpts
+        res_dict["occupation_threshold"] = scfres.occupation_threshold
+        open(fp -> JSON.print(fp, res_dict), res_file, "w")
+    end
     open(fp -> JSON.print(fp, log_dict_shifted), log_file_shifted, "w")
     open(fp -> JSON.print(fp, log_dict), log_file, "w")
     nothing

@@ -182,11 +182,9 @@ function run_scf()
 end
 
 # run scf if no log file
-if !isfile("scf.log")
-    open("scf.log", "w") do io
-        redirect_stdout(io) do
-            run_scf()
-        end
+open("scf.log", "w") do io
+    redirect_stdout(io) do
+        run_scf()
     end
 end
 
