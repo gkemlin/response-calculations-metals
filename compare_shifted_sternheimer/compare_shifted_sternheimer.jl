@@ -196,8 +196,8 @@ function run()
     @show sum(δρ2)
 
     # make sure we have the same density response
-    @assert sum(δρ1) < 1e-12
-    @assert sum(δρ2) < 1e-12
+    @assert sum(δρ1) < 1e-10
+    @assert sum(δρ2) < 1e-10
 
     # write output files
     kpts       = DFTK.gather_kpts(scfres.basis.kpoints, scfres.basis)
