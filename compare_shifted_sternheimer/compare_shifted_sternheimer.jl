@@ -54,7 +54,7 @@ function run()
     proc_id  = MPI.Comm_rank(basis.comm_kpts)
     res_file = "SCF_results.json"
     log_file         = "sternheimer_log_proc$(proc_id).json"
-    log_file_noextra = "sternheimer_log_proc$(proc_id)_noextra.json"
+    log_file_shifted = "sternheimer_log_proc$(proc_id)_shifted.json"
 
     # print setup
     if mpi_master()
