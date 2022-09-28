@@ -61,10 +61,14 @@ function sternheimer_solver(Hk, ψk, εnk, rhs, n; callback=info->nothing,
     # is defined above and b is the projection of -rhs onto Ran(Q).
     #
     b = -Q(rhs)
-    bb = R(b -  H(ψk_extra * (ψk_exHψk_ex \ ψk_extra'b)))
+    if !iszero(length(ψk_extra))
+        Hψk_extra = H(ψk_extra)
+    else
+        Hψk_extra = zeros(size(ψk,1), 0)
+    end
+    bb = R(b -  Hψk_extra * (ψk_exHψk_ex \ ψk_extra'b))
     function RAR(ϕ)
         Rϕ = R(ϕ)
-        Hψk_extra = H(ψk_extra)
         # Schur complement of (1-P) (H-εn) (1-P)
         # with the splitting Ran(1-P) = Ran(P_extra) ⊕ Ran(R)
         R(H(Rϕ)) - R(Hψk_extra) * (ψk_exHψk_ex \ Hψk_extra'Rϕ)
