@@ -73,18 +73,16 @@ using IterativeSolvers
             # build rhs
             ψkn = ψk[:, n]
             δHψkn = δHψk[:,n]
-            Q0(ϕ) = ϕ - ψkn * (ψkn' * ϕ)
-            rhs = - Q0(fn*δHψkn - Pn(δHψkn))
+            rhs = - fn*δHψkn - Pn(δHψkn)
 
             # build and solve shifted sternheimer equation
             function shifted_ham(ϕ)
-                ϕ = Q0(ϕ)
-                Q0(Hk*ϕ + Q(ϕ) - εk[n]*ϕ)
+                Hk*ϕ + Q(ϕ) - εk[n]*ϕ
             end
             precon = PreconditionerTPA(basis, kpoint)
             DFTK.precondprep!(precon, ψkn)
             function ldiv!(x, y)
-                x .= Q0(precon \ Q0(y))
+                x .= precon \ y
             end
             J = LinearMap{eltype(ψk)}(shifted_ham, size(Hk, 1))
             δψkn, ch = cg(J, rhs; Pl=DFTK.FunctionPreconditioner(ldiv!),
@@ -92,7 +90,8 @@ using IterativeSolvers
             info = (; basis=basis, kpoint=kpoint, ch=ch, n=n)
             callback(info)
             # add by hand the contribution onto ψkn
-            δψk[:,n] = δψkn + 1/2 * Rmn(n) * (dot(ψkn, δHψkn) - δεF) * ψkn
+            Q0(ϕ) = ϕ - ψkn * (ψkn' * ϕ)
+            δψk[:,n] = Q0(δψkn) + 1/2 * Rmn(n) * (dot(ψkn, δHψkn) - δεF) * ψkn
         end
         δψ[ik] = δψk
     end
