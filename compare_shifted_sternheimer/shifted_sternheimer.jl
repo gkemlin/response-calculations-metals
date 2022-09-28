@@ -78,10 +78,11 @@ using IterativeSolvers
 
             # build and solve shifted sternheimer equation
             function shifted_ham(ϕ)
+                ϕ = Q0(ϕ)
                 Q0(Hk*ϕ + Q(ϕ) - εk[n]*ϕ)
             end
             precon = PreconditionerTPA(basis, kpoint)
-            DFTK.precondprep!(precon, ψk[:, n])
+            DFTK.precondprep!(precon, ψkn)
             function ldiv!(x, y)
                 x .= Q0(precon \ Q0(y))
             end
