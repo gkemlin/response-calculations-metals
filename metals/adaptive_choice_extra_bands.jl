@@ -3,6 +3,7 @@ using JLD2
 using DataFrames
 using LaTeXStrings
 using Latexify
+using LinearAlgebra
 
 # adaptive choice of the number of extra bands with particular focus on one k-point
 # if N_start=nothing, we use as starting point the default N_extra used for the computations
