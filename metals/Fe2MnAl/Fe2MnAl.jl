@@ -4,9 +4,12 @@ using JSON
 using LinearAlgebra
 using ForwardDiff
 using JLD2
+using Random
 
 using MPI
 disable_threading()
+
+include("../../apply_chi0.jl")
 
 function run_scf()
     function build_magnetic_moments(atoms::AbstractArray; magmoms...)
@@ -137,6 +140,7 @@ function run_scf()
     save_scfres("scfres.jld2", scfres);
     # generate appropriate right-hand-side from atomic displacements
     R = [zeros(3) for pos in positions]
+    Random.seed!(1234)
     for iR in 1:length(R)
         R[iR] = -ones(3) + 2*rand(3)
     end
@@ -157,9 +161,9 @@ function run_scf()
         println("apply_χ0 with extra bands")
     end
     DFTK.reset_timer!(DFTK.timer)
-    δψ = DFTK.apply_χ0_4P(scfres.ham, scfres.ψ, scfres.occupation, scfres.εF,
-                          scfres.eigenvalues, δVψ; scfres.occupation_threshold,
-                          callback=callback_sternheimer!(log_dict))
+    (; δψ, δoccupation, δεF) = apply_χ0_schur(scfres.ham, scfres.ψ, scfres.occupation, scfres.εF,
+                                              scfres.eigenvalues, δVψ; scfres.occupation_threshold,
+                                              callback=callback_sternheimer!(log_dict))
     if mpi_master()
         println(DFTK.timer)
         println("\n--------------------------------")
@@ -172,9 +176,9 @@ function run_scf()
                                                    scfres.occupation;
                                                    threshold=scfres.occupation_threshold)
     ε_occ = [scfres.eigenvalues[ik][1:size(ψk,2)] for (ik, ψk) in enumerate(ψ_occ)]
-    δψ = DFTK.apply_χ0_4P(scfres.ham, ψ_occ, occ_occ, scfres.εF, ε_occ, δVψ;
-                          scfres.occupation_threshold,
-                          callback=callback_sternheimer!(log_dict_noextra))
+    (; δψ, δoccupation, δεF) = apply_χ0_schur(scfres.ham, ψ_occ, occ_occ, scfres.εF, ε_occ, δVψ;
+                                              scfres.occupation_threshold,
+                                              callback=callback_sternheimer!(log_dict_noextra))
     if mpi_master()
         println(DFTK.timer)
     end

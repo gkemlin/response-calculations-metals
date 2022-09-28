@@ -4,6 +4,8 @@ using JSON
 using LinearAlgebra
 using ForwardDiff
 
+include("../apply_chi0.jl")
+
 # function that runs SCF for silicon with a given lattice constant
 function run(a::Float64, dir::String; α=0.8)
 
@@ -107,9 +109,9 @@ function run(a::Float64, dir::String; α=0.8)
     println("\n--------------------------------")
     println("apply_χ0 with extra bands")
     DFTK.reset_timer!(DFTK.timer)
-    δψ = DFTK.apply_χ0_4P(scfres.ham, scfres.ψ, scfres.occupation, scfres.εF,
-                          scfres.eigenvalues, δVψ; scfres.occupation_threshold,
-                          callback=callback_sternheimer!(log_dict))
+    (; δψ, δoccupation, δεF) = apply_χ0_schur(scfres.ham, scfres.ψ, scfres.occupation, scfres.εF,
+                                              scfres.eigenvalues, δVψ; scfres.occupation_threshold,
+                                              callback=callback_sternheimer!(log_dict))
     println(DFTK.timer)
     println("\n--------------------------------")
     println("apply_χ0 without extra bands")
@@ -118,9 +120,9 @@ function run(a::Float64, dir::String; α=0.8)
     ε_occ = [εk[1:4] for εk in scfres.eigenvalues]
     occ   = [occk[1:4] for occk in scfres.occupation]
     DFTK.reset_timer!(DFTK.timer)
-    δψ = DFTK.apply_χ0_4P(scfres.ham, ψ_occ, occ, scfres.εF, ε_occ, δVψ;
-                          scfres.occupation_threshold,
-                          callback=callback_sternheimer!(log_dict_noextra))
+    (; δψ, δoccupation, δεF) = apply_χ0_schur(scfres.ham, ψ_occ, occ, scfres.εF, ε_occ, δVψ;
+                                              scfres.occupation_threshold,
+                                              callback=callback_sternheimer!(log_dict_noextra))
     println(DFTK.timer)
 
     # write output files
