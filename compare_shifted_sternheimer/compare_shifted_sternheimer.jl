@@ -179,7 +179,7 @@ function run()
                                                    threshold=scfres.occupation_threshold)
     ε_occ = [scfres.eigenvalues[ik][1:size(ψk,2)] for (ik, ψk) in enumerate(ψ_occ)]
     δψ2 = apply_χ0_shifted(scfres.ham, ψ_occ, occ_occ, scfres.εF, ε_occ, δVψ;
-                           scfres.occupation_threshold, abstol=1e-12,
+                           scfres.occupation_threshold,
                            callback=callback_sternheimer!(log_dict_shifted))
     println(DFTK.timer)
 
