@@ -4,6 +4,8 @@ using JSON
 using LinearAlgebra
 using ForwardDiff
 
+disable_threading()
+
 include("../apply_chi0.jl")
 
 # function that runs SCF for silicon with a given lattice constant

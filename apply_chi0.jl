@@ -9,6 +9,7 @@ using IterativeSolvers
 # included).
 function sternheimer_solver(Hk, ψk, εnk, rhs, n; callback=info->nothing,
                             ψk_extra=zeros(size(ψk,1), 0), εk_extra=zeros(0),
+                            Hψk_extra=zeros(size(ψk,1), 0),
                             abstol=1e-9, reltol=0, verbose=false)
     basis = Hk.basis
     kpoint = Hk.kpoint
@@ -61,11 +62,6 @@ function sternheimer_solver(Hk, ψk, εnk, rhs, n; callback=info->nothing,
     # is defined above and b is the projection of -rhs onto Ran(Q).
     #
     b = -Q(rhs)
-    if !iszero(length(ψk_extra))
-        Hψk_extra = H(ψk_extra)
-    else
-        Hψk_extra = zeros(size(ψk,1), 0)
-    end
     bb = R(b -  Hψk_extra * (ψk_exHψk_ex \ ψk_extra'b))
     function RAR(ϕ)
         Rϕ = R(ϕ)
@@ -160,6 +156,13 @@ end
         δψk = δψ[ik]
 
         εk = ε_occ[ik]
+        ψk_extra = ψ_extra[ik]
+        Hk = ham.blocks[ik]
+        if !iszero(length(ψk_extra))
+            Hψk_extra = Hk * ψk_extra
+        else
+            Hψk_extra = zeros(size(ψk,1), 0)
+        end
         for n = 1:length(εk)
             fnk = filled_occ * Smearing.occupation(model.smearing, (εk[n]-εF) / temperature)
 
@@ -173,9 +176,9 @@ end
             end
 
             # Sternheimer contribution
-            δψk[:, n] .+= sternheimer_solver(ham.blocks[ik], ψk, εk[n], δHψ[ik][:, n], n;
-                                             ψk_extra=ψ_extra[ik], εk_extra=ε_extra[ik],
-                                             kwargs_sternheimer...)
+            δψk[:, n] .+= sternheimer_solver(Hk, ψk, εk[n], δHψ[ik][:, n], n;
+                                             ψk_extra, εk_extra=ε_extra[ik],
+                                             Hψk_extra, kwargs_sternheimer...)
         end
     end
 
