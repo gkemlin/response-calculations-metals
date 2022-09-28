@@ -41,6 +41,7 @@ function plot_cvg(system::String, ik_list; spin=false)
                            L"\varepsilon_N    | f_N",
                            L"\varepsilon_{N+1}| f_{N+1}",
                            L"\varepsilon_{N+1} - \varepsilon_N",
+                           L"\#iterations $n=1$ Schur",
                            L"\#iterations $n=N$ Schur",
                            L"\#iterations $n=N$ direct"]
 
@@ -50,11 +51,11 @@ function plot_cvg(system::String, ik_list; spin=false)
         df[!, "$ik"] = vcat(N,                # number of "occupied" states
                             ε[ik][N-2:N+1],   # energies around the occupation threshold
                             gap_list[ik],     # gap
-                            0, 0)
+                            0, 0, 0)
         df[!, "$ik bis"] = vcat("",
                                 # occupatio around the occupation threshold
                                 occupation[ik][N-2:N+1],
-                                "", "", "")
+                                "", "", "", "")
         kpt_id = (Float64.(kpts[ik]["coordinate"]), kpts[ik]["spin"])
         key = "$(kpt_id)"
         println(key)
@@ -65,8 +66,10 @@ function plot_cvg(system::String, ik_list; spin=false)
                     dict_noextra = JSON.parse(file_noextra)
                     if key in keys(dict)
                         # update DataFrame
-                        max_schur   = maximum(length.(values(dict[key])))
-                        max_noschur = maximum(length.(values(dict_noextra[key])))
+                        min_schur   = length(dict[key]["1"])
+                        max_schur   = length(dict[key]["$N"])
+                        max_noschur = length(dict_noextra[key]["$N"])
+                        df[!, "$ik"][end-2] = min_schur
                         df[!, "$ik"][end-1] = max_schur
                         df[!, "$ik"][end]   = max_noschur
 
