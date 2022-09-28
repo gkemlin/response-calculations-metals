@@ -165,12 +165,8 @@ function run()
     if mpi_master()
         println(DFTK.timer)
         println("\n--------------------------------")
-        println("apply_χ0 without extra bands")
+        println("apply_χ0 with shilfted hamiltonian")
     end
-    # no extra bands
-    DFTK.reset_timer!(DFTK.timer)
-    println("\n--------------------------------")
-    println("apply_χ0 with shilfted hamiltonian")
     # setup with the shifted Hamiltonian
     DFTK.reset_timer!(DFTK.timer)
     ψ_occ, occ_occ = DFTK.select_occupied_orbitals(basis,
