@@ -179,7 +179,7 @@ function run()
     ε_occ = [scfres.eigenvalues[ik][1:size(ψk,2)] for (ik, ψk) in enumerate(ψ_occ)]
     (; δψ, δoccupation, δεF) = apply_χ0_schur(scfres.ham, ψ_occ, occ_occ, scfres.εF, ε_occ, δVψ;
                                               scfres.occupation_threshold,
-                                              callback=callback_sternheimer!(log_dict_noextra))
+                                              callback=callback_sternheimer!(log_dict_shifted))
     println(DFTK.timer)
 
     println("\n--------------------------------")
