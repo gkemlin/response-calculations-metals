@@ -180,4 +180,4 @@ plot_cvg("Fe2MnAl", ik_list, spin=true)
 
 # uncomment to plot convergence for every k-points
 # [for Heusler compounds it will generate 280 pdf !]
-all_plot("Fe2MnAl", spin=true)
+#  all_plot("Fe2MnAl", spin=true)
