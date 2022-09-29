@@ -183,11 +183,7 @@ function run()
     println(DFTK.timer)
 
     println("\n--------------------------------")
-    δψ1, _ = DFTK.select_occupied_orbitals(basis,
-                                           δψ,
-                                           scfres.occupation;
-                                           threshold=scfres.occupation_threshold)
-    δρ1 = DFTK.compute_δρ(basis, ψ_occ, δψ1, occ_occ)
+    δρ1 = DFTK.compute_δρ(basis, scfres.ψ, δψ, scfres.occupation, δoccupation)
     δρ2 = DFTK.compute_δρ(basis, ψ_occ, δψ2, [ones(size(occk)) for occk in occ_occ])
 
     @show norm(δρ1 - δρ2)
