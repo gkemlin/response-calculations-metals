@@ -4,6 +4,8 @@ using DataFrames
 using LaTeXStrings
 using Latexify
 
+disable_threading()
+
 include("../adaptive_choice_extra_bands.jl")
 
 open("adaptive.log", "w") do io

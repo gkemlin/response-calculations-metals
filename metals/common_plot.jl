@@ -17,7 +17,7 @@ mycolors=["myred", "myblue", "mygreen", "myorange", "myviolet"]
 style = "thick"
 
 # plot table and convergence graph for every k-point with index in ik_list
-function plot_cvg(system::String, ik_list; spin=false)
+function plot_cvg(system::String, ik_list; spin=false, adaptive_ham_applications=0)
     res = open(JSON.parse, "SCF_results.json")
     ε          = res["eigenvalues"]
     residuals  = res["residuals"]
@@ -29,9 +29,6 @@ function plot_cvg(system::String, ik_list; spin=false)
     # post-process results
     N_list   = findfirst.(x->x<threshold, occupation)
     gap_list = [εk[N_list[ik]] - εk[N_list[ik]-1] for (ik, εk) in enumerate(ε)]
-
-    display(hcat(gap_list...))
-    display(hcat([[ε[i] occupation[i] residuals[i]] for i in ik_list]...))
 
     # display table
     df = DataFrame()
@@ -58,7 +55,6 @@ function plot_cvg(system::String, ik_list; spin=false)
                                 "", "", "", "")
         kpt_id = (Float64.(kpts[ik]["coordinate"]), kpts[ik]["spin"])
         key = "$(kpt_id)"
-        println(key)
         for id in 0:(n_procs-1)
             open("sternheimer_log_proc$(id).json", "r") do file
                 open("sternheimer_log_proc$(id)_noextra.json", "r") do file_noextra
@@ -119,12 +115,33 @@ function plot_cvg(system::String, ik_list; spin=false)
             end
         end
     end
-    println("Convergence data for k-points $ik_list located at")
-    display([kpts[ik]["coordinate"] for ik in ik_list])
-    @show df
     open("table_$(system).tex", "w") do file
         write(file, latexify(df, env=:table, latex=true, fmt=FancyNumberFormatter(3)))
     end
+
+    # count number of applications
+    n_ham_applications = 0
+    n_ham_applications_noextra = 0
+    for id in 0:(n_procs-1)
+        open("sternheimer_log_proc$(id).json", "r") do file
+            open("sternheimer_log_proc$(id)_noextra.json", "r") do file_noextra
+                dict = JSON.parse(file)
+                dict_noextra = JSON.parse(file_noextra)
+                for kkey in keys(dict)
+                    n_ham_applications += sum(length.(values(dict[kkey])))
+                    n_ham_applications_noextra += sum(length.(values(dict_noextra[kkey])))
+                end
+            end
+        end
+    end
+    total_ham_applications = adaptive_ham_applications + n_ham_applications
+    @show system
+    @show adaptive_ham_applications
+    @show n_ham_applications
+    @show total_ham_applications
+    @show n_ham_applications_noextra
+    gain = (n_ham_applications_noextra-n_ham_applications) / n_ham_applications_noextra * 100
+    @show gain
     nothing
 end
 

@@ -30,9 +30,6 @@ function plot_cvg(system::String, ik_list; spin=false)
     N_list   = findfirst.(x->x<threshold, occupation)
     gap_list = [εk[N_list[ik]] - εk[N_list[ik]-1] for (ik, εk) in enumerate(ε)]
 
-    display(hcat(gap_list...))
-    display(hcat([[ε[i] occupation[i] residuals[i]] for i in ik_list]...))
-
     # display table
     df = DataFrame()
     df[!, L"$k$-point"] = [L"N",
@@ -57,7 +54,6 @@ function plot_cvg(system::String, ik_list; spin=false)
                                 "", "", "")
         kpt_id = (Float64.(kpts[ik]["coordinate"]), kpts[ik]["spin"])
         key = "$(kpt_id)"
-        println(key)
         for id in 0:(n_procs-1)
             open("sternheimer_log_proc$(id).json", "r") do file
                 open("sternheimer_log_proc$(id)_shifted.json", "r") do file_shifted
@@ -116,12 +112,30 @@ function plot_cvg(system::String, ik_list; spin=false)
             end
         end
     end
-    println("Convergence data for k-points $ik_list located at")
-    display([kpts[ik]["coordinate"] for ik in ik_list])
-    @show df
     open("table_$(system).tex", "w") do file
         write(file, latexify(df, env=:table, latex=true, fmt=FancyNumberFormatter(3)))
     end
+
+    # count number of applications
+    n_ham_applications = 0
+    n_ham_applications_shifted = 0
+    for id in 0:(n_procs-1)
+        open("sternheimer_log_proc$(id).json", "r") do file
+            open("sternheimer_log_proc$(id)_shifted.json", "r") do file_shifted
+                dict = JSON.parse(file)
+                dict_shifted = JSON.parse(file_shifted)
+                for kkey in keys(dict)
+                    n_ham_applications += sum(length.(values(dict[kkey])))
+                    n_ham_applications_shifted += sum(length.(values(dict_shifted[kkey])))
+                end
+            end
+        end
+    end
+    @show system
+    @show n_ham_applications
+    @show n_ham_applications_shifted
+    gain = (n_ham_applications_shifted-n_ham_applications) / n_ham_applications_shifted * 100
+    @show gain
     nothing
 end
 
@@ -176,7 +190,7 @@ end
 
 # plot data for k-points with index in ik_list
 ik_list = [96, 236]
-plot_cvg("Fe2MnAl", ik_list, spin=true)
+plot_cvg("Fe2MnAl_shifted", ik_list, spin=true)
 
 # uncomment to plot convergence for every k-points
 # [for Heusler compounds it will generate 280 pdf !]
