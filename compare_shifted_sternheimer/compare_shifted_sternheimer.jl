@@ -163,8 +163,8 @@ function run()
     end
     DFTK.reset_timer!(DFTK.timer)
     (; δψ, δoccupation, δεF) = apply_χ0_schur(scfres.ham, scfres.ψ, scfres.occupation, scfres.εF,
-                                              scfres.eigenvalues, δVψ; scfres.occupation_threshold,
-                                              callback=callback_sternheimer!(log_dict))
+                                                scfres.eigenvalues, δVψ; scfres.occupation_threshold,
+                                                callback=callback_sternheimer!(log_dict))
     if mpi_master()
         println(DFTK.timer)
         println("\n--------------------------------")
@@ -177,14 +177,14 @@ function run()
                                                    scfres.occupation;
                                                    threshold=scfres.occupation_threshold)
     ε_occ = [scfres.eigenvalues[ik][1:size(ψk,2)] for (ik, ψk) in enumerate(ψ_occ)]
-    (; δψ, δoccupation, δεF) = apply_χ0_schur(scfres.ham, ψ_occ, occ_occ, scfres.εF, ε_occ, δVψ;
-                                              scfres.occupation_threshold,
-                                              callback=callback_sternheimer!(log_dict_shifted))
+    δψ2 = apply_χ0_shifted(scfres.ham, ψ_occ, occ_occ, scfres.εF, ε_occ, δVψ;
+                           scfres.occupation_threshold,
+                           callback=callback_sternheimer!(log_dict_shifted))
     println(DFTK.timer)
 
     println("\n--------------------------------")
     δψ1, _ = DFTK.select_occupied_orbitals(basis,
-                                           δψ1,
+                                           δψ,
                                            scfres.occupation;
                                            threshold=scfres.occupation_threshold)
     δρ1 = DFTK.compute_δρ(basis, ψ_occ, δψ1, occ_occ)
@@ -193,10 +193,6 @@ function run()
     @show norm(δρ1 - δρ2)
     @show sum(δρ1)
     @show sum(δρ2)
-
-    # make sure we have the same density response
-    @assert sum(δρ1) < 1e-10
-    @assert sum(δρ2) < 1e-10
 
     # write output files
     kpts       = DFTK.gather_kpts(scfres.basis.kpoints, scfres.basis)
