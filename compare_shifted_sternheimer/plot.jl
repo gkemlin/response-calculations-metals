@@ -75,26 +75,26 @@ function plot_cvg(system::String, ik_list; spin=false)
                                 color = mycolors[3]
                                 push!(p, Plots.Linear(Float64.(dict[key]["$n"]),
                                                       legendentry=L"Schur $n=%$(n)$",
-                                                      style="solid, thick, $color, mark repeat=5", mark="triangle"))
+                                                      style="solid, thick, $color, mark repeat=5, mark size=4pt", mark="triangle"))
                                 push!(p, Plots.Linear(Float64.(dict_shifted[key]["$n"]),
                                                       legendentry=L"shifted $n=%$(n)$",
-                                                      style="dashed, thick, $color, mark repeat=5", mark="triangle"))
+                                                      style="dashed, thick, $color, mark repeat=5, mark size=4pt", mark="triangle"))
                             elseif n==div(3N,4)
                                 color = mycolors[2]
                                 push!(p, Plots.Linear(Float64.(dict[key]["$n"]),
                                                       legendentry=L"Schur $n=%$(n)$",
-                                                      style="solid, thick, $color, mark repeat=5", mark="+"))
+                                                      style="solid, thick, $color, mark repeat=5, mark size=4pt", mark="+"))
                                 push!(p, Plots.Linear(Float64.(dict_shifted[key]["$n"]),
                                                       legendentry=L"shifted $n=%$(n)$",
-                                                      style="dashed, thick, $color, mark repeat=5", mark="+"))
+                                                      style="dashed, thick, $color, mark repeat=5, mark size=4pt", mark="+"))
                             elseif n==N
                                 color = mycolors[1]
                                 push!(p, Plots.Linear(Float64.(dict[key]["$n"]),
                                                       legendentry=L"Schur $n=%$(n)$",
-                                                      style="solid, thick, $color, mark repeat=5", mark="x"))
+                                                      style="solid, thick, $color, mark repeat=5, mark size=4pt", mark="x"))
                                 push!(p, Plots.Linear(Float64.(dict_shifted[key]["$n"]),
                                                       legendentry=L"shifted $n=%$(n)$",
-                                                      style="dashed, thick, $color, mark repeat=5", mark="x"))
+                                                      style="dashed, thick, $color, mark repeat=5, mark size=4pt", mark="x"))
                             end
                         end
                         if spin

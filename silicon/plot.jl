@@ -40,7 +40,7 @@ for dir in readdir()
     end
 end
 push!(g, Plots.Linear(gap_list, ite_list, legendentry="Schur",
-                      style="thick, mygreen", mark="x"))
+                      style="thick, mygreen, mark size=4pt", mark="x"))
 push!(g, Plots.Linear(gap_list, ite_noextra_list, legendentry="direct",
-                      style="thick, myblue", mark="o"))
+                      style="thick, myblue, mark size=4pt", mark="o"))
 save("sternheimer_silicon_n4.pdf", g)
