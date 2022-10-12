@@ -1,5 +1,5 @@
 Julia code performing the numerical simulation from our paper on robust response
-calculations for metals, available on arXiv [insert link].
+calculations for metals, available on [arXiv](https://arxiv.org/abs/2210.04512).
 The framework described in this paper is implemented by default in
 [DFTK](https://dftk.org). For the metals, we run DFTK with MPI, see
 [Timings and parallelization](https://docs.dftk.org/stable/tricks/parallelization/).
